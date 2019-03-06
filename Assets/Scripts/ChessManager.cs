@@ -200,6 +200,11 @@ public class ChessManager : MonoBehaviour {
 		}
 	}
 
+	public void SetPlayerNames(string p1Name, string p2Name){
+		player1Name.text = p1Name;
+		player2Name.text = p2Name;
+	}
+
 	public void MoveHelper(bool whiteTurn, Vector2Int startPos, Vector2Int endPos){
 		if(!movingPiece){
 			movingPiece = true;

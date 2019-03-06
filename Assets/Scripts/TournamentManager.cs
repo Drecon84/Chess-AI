@@ -72,6 +72,7 @@ public class TournamentManager : MonoBehaviour
             player2Index = Random.Range(0, playerList.Count-1);
         }
         iOManager = new AIIOManager(chessManager, playerList[player1Index], playerList[player2Index]);
+        chessManager.SetPlayerNames(playerList[player1Index].aIDNA.aiName, playerList[player2Index].aIDNA.aiName);
         CreateGame(playerList[player1Index], playerList[player2Index]);
         chessManager.StartNewGame(2);
     }
