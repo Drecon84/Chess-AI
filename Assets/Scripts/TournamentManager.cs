@@ -144,7 +144,6 @@ public class TournamentManager : MonoBehaviour
         if(chessManager.gameActive && !waitforMakePlayers && !chessManager.movingPiece){
             iOManager.PerformActions();
         }
-        // Save current game state?
     }
 
     public void CreatePlayers(){
@@ -204,17 +203,17 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player1Index] -= 0;
                 pointsList[player2Index]++;
             }
-            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
                 pointsList[player1Index]++;
-                pointsList[player2Index] += 3;
+                pointsList[player2Index] += 7;
             }
             else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 5){
                 pointsList[player1Index]++;
                 pointsList[player2Index] += 5;
             }
-            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
                 pointsList[player1Index]++;
-                pointsList[player2Index] += 7;
+                pointsList[player2Index] += 3;        
             }
         }
         if(blackPlayerLost){
@@ -230,18 +229,18 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player1Index]++;
                 pointsList[player2Index] -= 0;
             }
-            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
-                pointsList[player1Index] += 3;
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
+                pointsList[player1Index] += 7;
                 pointsList[player2Index]++;
             }
             else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 5){
                 pointsList[player1Index] += 5;
                 pointsList[player2Index]++;
             }
-            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
-                pointsList[player1Index] += 7;
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
+                pointsList[player1Index] += 3;
                 pointsList[player2Index]++;
-            }
+            }           
         }
     }
 
