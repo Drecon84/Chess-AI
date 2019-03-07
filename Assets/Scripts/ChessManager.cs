@@ -217,7 +217,8 @@ public class ChessManager : MonoBehaviour {
 		tryMove = board.MakeMove(whiteTurn, startPos, endPos);
 		yield return new WaitForEndOfFrame();
 		if(tryMove){
-			tournamentManager.PlayerLostGame(whiteTurn);
+			boardManager.UpdateBoard();
+			//tournamentManager.PlayerLostGame(whiteTurn);
 			PassTurn();
 		}
 		else {
