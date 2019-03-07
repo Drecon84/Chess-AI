@@ -192,6 +192,10 @@ public class TournamentManager : MonoBehaviour
     public void ScorePlayers(){
         // Currently a draw awards 0 points... is this correct? 
         if(whitePlayerLost){
+            if(chessManager.board.CheckIfCheckMate(true)){
+                pointsList[player1Index]--;
+                pointsList[player2Index] += 20;
+            }
             if(chessManager.timerP1 <= 0){
                 pointsList[player1Index] -= 5;
                 pointsList[player2Index]++;
@@ -200,23 +204,43 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player1Index] -= 0;
                 pointsList[player2Index]++;
             }
-            else if(chessManager.board.CheckIfCheckMate(true)){
-                pointsList[player1Index]--;
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
+                pointsList[player1Index]++;
+                pointsList[player2Index] += 3;
+            }
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 5){
+                pointsList[player1Index]++;
                 pointsList[player2Index] += 5;
+            }
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
+                pointsList[player1Index]++;
+                pointsList[player2Index] += 7;
             }
         }
         if(blackPlayerLost){
-            if(chessManager.timerP2 <= 0){
-                pointsList[player2Index] -= 5;
+            if(chessManager.board.CheckIfCheckMate(true)){
+                pointsList[player1Index] += 20;
+                pointsList[player2Index]--;
+            }
+            if(chessManager.timerP1 <= 0){
                 pointsList[player1Index]++;
+                pointsList[player2Index] -= 5;
             }
             else if(!chessManager.tryMove){
-                pointsList[player2Index] -= 0;
                 pointsList[player1Index]++;
+                pointsList[player2Index] -= 0;
             }
-            else if(chessManager.board.CheckIfCheckMate(true)){
-                pointsList[player2Index]--;
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
+                pointsList[player1Index] += 3;
+                pointsList[player2Index]++;
+            }
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 5){
                 pointsList[player1Index] += 5;
+                pointsList[player2Index]++;
+            }
+            else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
+                pointsList[player1Index] += 7;
+                pointsList[player2Index]++;
             }
         }
     }
