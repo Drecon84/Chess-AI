@@ -64,7 +64,6 @@ public class TournamentManager : MonoBehaviour
     public void NextGame(){ 
         whitePlayerLost = false;
         blackPlayerLost = false;
-        // TODO: prevent p1 and p2 from being the same player?
         player1Index = Random.Range(0, playerList.Count-1);
         player2Index = Random.Range(0, playerList.Count-1);
         // Will cause an infinite loop if there's exactly one player, that should never happen
@@ -198,7 +197,7 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player2Index]++;
             }
             else if(!chessManager.tryMove){
-                pointsList[player1Index] -= 2;
+                pointsList[player1Index] -= 0;
                 pointsList[player2Index]++;
             }
             else if(chessManager.board.CheckIfCheckMate(true)){
@@ -212,7 +211,7 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player1Index]++;
             }
             else if(!chessManager.tryMove){
-                pointsList[player2Index] -= 2;
+                pointsList[player2Index] -= 0;
                 pointsList[player1Index]++;
             }
             else if(chessManager.board.CheckIfCheckMate(true)){

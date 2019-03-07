@@ -213,6 +213,7 @@ public class ChessManager : MonoBehaviour {
 	}
 
 	public IEnumerator MakeMove(bool whiteTurn, Vector2Int startPos, Vector2Int endPos){
+		Debug.Log("Moving from " + startPos + " to " + endPos);
 		tryMove = board.MakeMove(whiteTurn, startPos, endPos);
 		yield return new WaitForEndOfFrame();
 		if(tryMove){

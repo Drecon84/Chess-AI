@@ -258,7 +258,6 @@ public class ChessNetworkBuilder
                 raffle.Add(playerList[i]);
             }
         }
-        // Currently hardcoded to 200 players, need to move this variable
         while(playerList.Count < maxPlayerNumber){
             int father = Random.Range(0, raffle.Count);
             int mother = Random.Range(0, raffle.Count);
