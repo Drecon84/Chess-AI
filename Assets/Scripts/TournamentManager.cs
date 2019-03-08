@@ -20,7 +20,7 @@ public class TournamentManager : MonoBehaviour
 
     int maxPlayerNumber = 200;
 
-    int gamesInRound = 400;
+    int gamesInRound = 1000;
 
     int currentGame;
 
@@ -35,6 +35,8 @@ public class TournamentManager : MonoBehaviour
     public string path;
 
     public bool waitforMakePlayers = false;
+
+    public bool humanGame;
 
     public void StartTournament(){
         path = Application.dataPath + "/ChessPlayers.xml";
@@ -141,7 +143,7 @@ public class TournamentManager : MonoBehaviour
                 }
             }
         }
-        if(chessManager.gameActive && !waitforMakePlayers && !chessManager.movingPiece){
+        if(chessManager.gameActive && !waitforMakePlayers && !chessManager.movingPiece && !humanGame){
             iOManager.PerformActions();
         }
     }
@@ -219,58 +221,6 @@ public class TournamentManager : MonoBehaviour
         else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
             pointsList[player1Index] +=  2; 
         }
-        // if(whitePlayerLost){
-        //     if(chessManager.board.CheckIfCheckMate(true)){
-        //         pointsList[player1Index]--;
-        //         pointsList[player2Index] += 20;
-        //     }
-        //     else if(!chessManager.tryMove){
-        //         pointsList[player1Index] -= 0;
-        //         pointsList[player2Index]++;
-        //     }
-        //     else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 15){
-        //         pointsList[player1Index]++;
-        //         pointsList[player2Index] += 7;
-        //     }
-        //     else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 5){
-        //         pointsList[player1Index]++;
-        //         pointsList[player2Index] += 5;
-        //     }
-        //     else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
-        //         pointsList[player1Index]++;
-        //         pointsList[player2Index] += 3;        
-        //     }
-        //     else if(chessManager.timerP1 <= 0){
-        //         pointsList[player1Index] -= 5;
-        //         pointsList[player2Index]++;
-        //     }
-        // }
-        // if(blackPlayerLost){
-        //     if(chessManager.board.CheckIfCheckMate(true)){
-        //         pointsList[player1Index] += 20;
-        //         pointsList[player2Index]--;
-        //     }
-        //     else if(!chessManager.tryMove){
-        //         pointsList[player1Index]++;
-        //         pointsList[player2Index] -= 0;
-        //     }
-        //     else if(playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count > 15){
-        //         pointsList[player1Index] += 7;
-        //         pointsList[player2Index]++;
-        //     }
-        //     else if(playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count > 5){
-        //         pointsList[player1Index] += 5;
-        //         pointsList[player2Index]++;
-        //     }
-        //     else if(playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count > 0){
-        //         pointsList[player1Index] += 3;
-        //         pointsList[player2Index]++;
-        //     }  
-        //     else if(chessManager.timerP2 <= 0){
-        //         pointsList[player1Index] += 3;
-        //         pointsList[player2Index] -= 5;
-        //     }         
-        // }
     }
 
     public void FindBestGame(){

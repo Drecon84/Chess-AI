@@ -44,6 +44,11 @@ public class ChessManager : MonoBehaviour {
 		//StartNewGame(60*5);
 	}
 
+	public void StartHumanGame(){
+		StartNewGame(60*5);
+		tournamentManager.humanGame = true;
+	}
+
 	public void StartNewGame(int playerTime){
 		whiteTurn = true;
 		board = new Board();
@@ -213,10 +218,10 @@ public class ChessManager : MonoBehaviour {
 	}
 
 	public IEnumerator MakeMove(bool whiteTurn, Vector2Int startPos, Vector2Int endPos){
-		Debug.Log("Moving from " + startPos + " to " + endPos);
 		tryMove = board.MakeMove(whiteTurn, startPos, endPos);
 		yield return new WaitForEndOfFrame();
 		if(tryMove){
+			Debug.Log("Moving from " + startPos + " to " + endPos);
 			boardManager.UpdateBoard();
 			//tournamentManager.PlayerLostGame(whiteTurn);
 			PassTurn();

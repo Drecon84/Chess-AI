@@ -128,7 +128,8 @@ public class Board {
 					}
 					// check if on second rank (may move 2 if not obstructed)
 					if(startPos.y == 1 && endPos.y == 3 && gameBoard[startPos.x, startPos.y+1].piece == null && 
-															gameBoard[startPos.x, startPos.y+2].piece == null){
+															gameBoard[startPos.x, startPos.y+2].piece == null &&
+															 startPos.x == endPos.x){
 						return TryMovePiece(whiteTurn, startField, endField);
 					}
 					// check normal move
@@ -168,7 +169,8 @@ public class Board {
 					}
 					// check if on second rank (may move 2 if not obstructed)
 					if(startPos.y == 6 && endPos.y == 4 && gameBoard[startPos.x, startPos.y-1].piece == null && 
-															gameBoard[startPos.x, startPos.y-2].piece == null){
+															gameBoard[startPos.x, startPos.y-2].piece == null &&
+															 startPos.x == endPos.x){
 						return TryMovePiece(whiteTurn, startField, endField);
 					}
 					// check normal move

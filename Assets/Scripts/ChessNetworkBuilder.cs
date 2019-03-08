@@ -214,7 +214,17 @@ public class ChessNetworkBuilder
         // Cull the weak
         List<ChessAI> raffle = new List<ChessAI>();
         for(int i = 0; i < playerList.Count; i++){
-            if(pointsList[i] < -5){
+            if(pointsList[i] < -15){
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+                raffle.Add(playerList[i]);
+            }
+            else if(pointsList[i] < -5){
                 raffle.Add(playerList[i]);
                 raffle.Add(playerList[i]);
                 raffle.Add(playerList[i]);
