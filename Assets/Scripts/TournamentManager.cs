@@ -153,7 +153,7 @@ public class TournamentManager : MonoBehaviour
         pointsList = new List<int>();
         int numInputs = 64*12+1;
         int numOutputs = 64 + 4 + 1;
-        networkBuilder = new ChessNetworkBuilder(numInputs, numOutputs, 4, 4, 10, 5);
+        networkBuilder = new ChessNetworkBuilder(numInputs, numOutputs, 4, 4, 100, 5);
         for(int i = 0; i < maxPlayerNumber; i++){
             ChessAIDNA aIDNA = networkBuilder.BuildGene();
             playerDNA.playerList.Add(aIDNA);
@@ -168,7 +168,7 @@ public class TournamentManager : MonoBehaviour
         pointsList = new List<int>();
         int numInputs = 64*12+1;
         int numOutputs = 64 + 4 + 1;
-        networkBuilder = new ChessNetworkBuilder(numInputs, numOutputs, 4, 4, 10, 5);
+        networkBuilder = new ChessNetworkBuilder(numInputs, numOutputs, 4, 4, 100, 5);
         foreach(ChessAIDNA gene in playerDNA.playerList){
             playerList.Add(networkBuilder.BuildNetworkFromGene(gene));
             pointsList.Add(0);
@@ -194,10 +194,10 @@ public class TournamentManager : MonoBehaviour
         // Currently a draw awards 0 points... is this correct? 
         if(chessManager.board.CheckIfCheckMate(true)){
             if(whitePlayerLost){
-                pointsList[player2Index] += 20;
+                pointsList[player2Index] += 30;
             }
             else{
-                pointsList[player1Index] += 20;
+                pointsList[player1Index] += 30;
             }   
         }
         if(!chessManager.tryMove){
@@ -215,8 +215,9 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player2Index] -= 5;
         }
         if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 1){
-            pointsList[player1Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count * 2;
-            pointsList[player2Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count * 2;
+
+            pointsList[player1Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList[playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count-1].moveNumber * 2;
+            pointsList[player2Index] += playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList[playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count-1].moveNumber * 2;
         }
         else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
             pointsList[player1Index] +=  2; 
