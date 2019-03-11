@@ -20,7 +20,12 @@ public class TournamentManager : MonoBehaviour
 
     int maxPlayerNumber = 200;
 
-    int gamesInRound = 1000;
+    //int gamesInRound = 1000;
+    int numMatches = 3;
+
+    int currentMatch;
+
+    int playerShift;
 
     int currentGame;
 
@@ -37,6 +42,8 @@ public class TournamentManager : MonoBehaviour
     public bool waitforMakePlayers = false;
 
     public bool humanGame;
+
+    public bool pauseNextGen;
 
     public void StartTournament(){
         path = Application.dataPath + "/ChessPlayers.xml";
@@ -55,23 +62,28 @@ public class TournamentManager : MonoBehaviour
 
     public void NextRound(){
         Debug.Log("Starting next round...");
+        pauseNextGen = false;
         currentGame = 0;
         pointsList = new List<int>();
         for(int i = 0; i < maxPlayerNumber; i++){
             pointsList.Add(0);
         }
+        currentMatch = 1;
+        playerShift = Random.Range(1, playerList.Count);
         NextGame();
     }
 
     public void NextGame(){ 
         whitePlayerLost = false;
         blackPlayerLost = false;
-        player1Index = Random.Range(0, playerList.Count-1);
-        player2Index = Random.Range(0, playerList.Count-1);
+        //player1Index = Random.Range(0, playerList.Count-1);
+        //player2Index = Random.Range(0, playerList.Count-1);
         // Will cause an infinite loop if there's exactly one player, that should never happen
-        while(player1Index == player2Index){
-            player2Index = Random.Range(0, playerList.Count-1);
-        }
+        //while(player1Index == player2Index){
+        //    player2Index = Random.Range(0, playerList.Count-1);
+        //}
+        player1Index = currentGame;
+        player2Index = (currentGame + playerShift) % playerList.Count;
         iOManager = new AIIOManager(chessManager, playerList[player1Index], playerList[player2Index]);
         chessManager.SetPlayerNames(playerList[player1Index].aIDNA.aiName, playerList[player2Index].aIDNA.aiName);
         CreateGame(playerList[player1Index], playerList[player2Index]);
@@ -79,8 +91,7 @@ public class TournamentManager : MonoBehaviour
     }
 
     public void PauseTournament(){
-        // Save progress
-        Debug.Log("Pausing not yet implemented");
+        pauseNextGen = true;
     }
 
     public void PlayerLostGame(bool whitePlayer){
@@ -98,7 +109,7 @@ public class TournamentManager : MonoBehaviour
             if(whitePlayerLost){
                 // Update points list, we want to give different points for different types of Victories!
                 // if round not over, start new game
-                if(currentGame < gamesInRound){
+                if(currentGame < playerList.Count-1){
                     playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
                     playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
                     ScorePlayers();
@@ -106,7 +117,13 @@ public class TournamentManager : MonoBehaviour
                     NextGame();
                 }
                 else{
-                    if(!waitforMakePlayers){
+                    if(currentMatch < numMatches){
+                        currentMatch++;
+                        currentGame = 0;
+                        playerShift = Random.Range(1, playerList.Count);
+                        NextGame();
+                    }
+                    else if(!waitforMakePlayers){
                         playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
                         playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
                         ScorePlayers();
@@ -122,7 +139,7 @@ public class TournamentManager : MonoBehaviour
             }
             if(blackPlayerLost){
                 // if round not over, start new game
-                if(currentGame < gamesInRound){
+                if(currentGame < playerList.Count-1){
                     playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
                     playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
                     ScorePlayers();
@@ -130,7 +147,13 @@ public class TournamentManager : MonoBehaviour
                     NextGame();
                 }
                 else{
-                    if(!waitforMakePlayers){
+                    if(currentMatch < numMatches){
+                        currentMatch++;
+                        currentGame = 0;
+                        playerShift = Random.Range(1, playerList.Count);
+                        NextGame();
+                    }
+                    else if(!waitforMakePlayers){
                         playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
                         playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
                         ScorePlayers();
@@ -183,6 +206,9 @@ public class TournamentManager : MonoBehaviour
         }
         yield return new WaitForEndOfFrame();
         waitforMakePlayers = false;
+        if(!pauseNextGen){
+            NextRound();
+        }
         yield break;
     }
 
@@ -191,37 +217,41 @@ public class TournamentManager : MonoBehaviour
     }
 
     public void ScorePlayers(){
-        // Currently a draw awards 0 points... is this correct? 
+        // Currently a draw awards 0 points... should give 1 point, when it's possible to score a draw...
         if(chessManager.board.CheckIfCheckMate(true)){
             if(whitePlayerLost){
-                pointsList[player2Index] += 30;
+                pointsList[player2Index] += 3;
             }
             else{
-                pointsList[player1Index] += 30;
+                pointsList[player1Index] += 3;
             }   
         }
         if(!chessManager.tryMove){
             if(whitePlayerLost){
-                pointsList[player2Index]++;
+                pointsList[player2Index] -= 2;
+                pointsList[player1Index] += 3;
             }
             else{
-                pointsList[player1Index]++;
+                pointsList[player1Index] -= 2;
+                pointsList[player2Index] += 3;
             }
         }
         if(chessManager.timerP1 <= 0){
             pointsList[player1Index] -= 5;
+            pointsList[player2Index] += 3;
         }
         if(chessManager.timerP2 <= 0){
                 pointsList[player2Index] -= 5;
+                pointsList[player1Index] += 3;
         }
-        if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 1){
+        // if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 1){
 
-            pointsList[player1Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList[playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count-1].moveNumber * 2;
-            pointsList[player2Index] += playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList[playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count-1].moveNumber * 2;
-        }
-        else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
-            pointsList[player1Index] +=  2; 
-        }
+        //     pointsList[player1Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList[playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count-1].moveNumber * 5;
+        //     pointsList[player2Index] += playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList[playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count-1].moveNumber * 5;
+        // }
+        // else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
+        //     pointsList[player1Index] +=  5; 
+        // }
     }
 
     public void FindBestGame(){

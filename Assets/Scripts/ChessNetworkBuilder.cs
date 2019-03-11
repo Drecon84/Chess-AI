@@ -211,10 +211,21 @@ public class ChessNetworkBuilder
     }
 
     private List<ChessAI> CullAIs(List<ChessAI> playerList, List<int> pointsList){
+        // Find out the highest score and save it to make sure the highest score does not get deleted. 
+        int highestScore = int.MinValue;
+        foreach(int score in pointsList){
+            if(score > highestScore){
+                highestScore = score;
+            }
+        }
         // Cull the weak
+        // Currently every AI with positive score gets the same treatment... Need a better system?
         List<ChessAI> raffle = new List<ChessAI>();
         for(int i = 0; i < playerList.Count; i++){
-            if(pointsList[i] < -15){
+            if(pointsList[i] == highestScore){
+                // Don't remove this score. 
+            }
+            else if(pointsList[i] < -14){
                 raffle.Add(playerList[i]);
                 raffle.Add(playerList[i]);
                 raffle.Add(playerList[i]);
