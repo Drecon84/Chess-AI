@@ -229,8 +229,10 @@ public class ChessManager : MonoBehaviour {
 		else {
 			tournamentManager.PlayerLostGame(whiteTurn);
 			gameActive = false;
+			yield return null;
 		}
 		movingPiece = false;
+		
 		yield return null;
 
 	}
@@ -247,6 +249,29 @@ public class ChessManager : MonoBehaviour {
 		}
 		StopAllCoroutines();
 		timerOn = false;
+		// Check for checkmate
+		if(board.CheckIfCheckMate(whiteTurn)){
+			print("Checkmate Atheists!");
+			board.moveList.Add(new Move(board.moveNum, whiteTurn, true));
+			if(whiteTurn){
+				player1Name.color = Color.red;
+				tournamentManager.PlayerLostGame(true);
+				gameActive = false;
+			}
+			else{
+				player2Name.color = Color.red;
+				tournamentManager.PlayerLostGame(false);
+				gameActive = false;
+			}
+		}
+		// Check if game is a draw
+		else if(board.CheckDraw(whiteTurn)){
+			tournamentManager.DrawGame();
+			player1Name.color = Color.green;
+			player2Name.color = Color.green;
+			Debug.Log("Game is a draw!");
+			gameActive = false;
+		}
 	}
 
 	public void PromoteTarget(int type){

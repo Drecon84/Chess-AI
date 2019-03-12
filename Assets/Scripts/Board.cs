@@ -15,6 +15,9 @@ public class Board {
 
 	public int moveNum = 0;
 
+	int[] whitePieces;
+	int[] blackPieces;
+
 	public void BuildBoard(){
 		gameBoard = new Field[8,8];
 		for(int i = 0; i < 8; i++){
@@ -23,6 +26,8 @@ public class Board {
 			}
 		}
 		moveList = new List<Move>();
+		whitePieces = new int[] {8,2,2,2,1,1};
+		blackPieces = new int[] {8,2,2,2,1,1};
 	}
 
 	public void promotePawnTo(int pro){
@@ -60,15 +65,17 @@ public class Board {
 				moveList.Add(new Move(moveNum, whiteTurn, 5, true, endPos.x, endPos.y));
 			}
 		}
-		// check en passant
+		// execute en passant
 		else if(startField.piece.type == 0 && (startPos.x == endPos.x-1 || startPos.x == endPos.x+1) && endField.piece == null){
 			endField.piece = startField.piece;
 			startField.piece = null;
 			if(whiteTurn){
+				blackPieces[0]--;
 				gameBoard[endField.position.x, endField.position.y-1].piece = null;
 				moveList.Add(new Move(moveNum, whiteTurn, 0, startField.position.x, startField.position.y, endField.position.x, endField.position.y, true, true, CheckIfKingInCheck(whiteTurn)));
 			}
 			else{
+				whitePieces[0]--;
 				gameBoard[endField.position.x, endField.position.y+1].piece = null;
 				moveList.Add(new Move(moveNum, whiteTurn, 0,  startField.position.x, startField.position.y, endField.position.x, endField.position.y, true, true, CheckIfKingInCheck(whiteTurn)));
 			}
@@ -1344,24 +1351,64 @@ public class Board {
 		if(promoteTo == 1){
 			endField.piece = new Knight(true, endField.position);
 			startField.piece = null;
+			if(whiteMove){
+				whitePieces[0]--;
+				whitePieces[1]++;
+			}
+			else{
+				blackPieces[0]--;
+				blackPieces[1]++;
+			}
 		}
 		if(promoteTo == 2){
 			endField.piece = new Bishop(true, endField.position);
 			startField.piece = null;
+			if(whiteMove){
+				whitePieces[0]--;
+				whitePieces[2]++;
+			}
+			else{
+				blackPieces[0]--;
+				blackPieces[2]++;
+			}
 		}
 		if(promoteTo == 3){
 			endField.piece = new Rook(true, endField.position);
 			startField.piece = null;
+			if(whiteMove){
+				whitePieces[0]--;
+				whitePieces[3]++;
+			}
+			else{
+				blackPieces[0]--;
+				blackPieces[3]++;
+			}
 		}
 		if(promoteTo == 4){
 			endField.piece = new Queen(true, endField.position);
 			startField.piece = null;
+			if(whiteMove){
+				whitePieces[0]--;
+				whitePieces[4]++;
+			}
+			else{
+				blackPieces[0]--;
+				blackPieces[4]++;
+			}
 		}
 		bool checkCheck = CheckIfKingInCheck(whiteMove);
 		moveList.Add(new Move(moveNum, whiteMove, 0, startField.position.x, startField.position.y, endField.position.x, endField.position.y, takePiece, promoteTo, checkCheck));
 	}
 
 	private void ExecuteMove(bool whiteMove, bool takePiece, Field startField, Field endField){
+		if(takePiece){
+			if(whiteMove){
+				blackPieces[endField.piece.type]--;
+			}
+			else{
+				whitePieces[endField.piece.type]--;
+			}
+		}
 		endField.piece = startField.piece;
 		endField.piece.posOnBoard = endField.position;
 		startField.piece = null;
@@ -1369,4 +1416,293 @@ public class Board {
 		moveList.Add(new Move(moveNum, whiteMove, endField.piece.type, startField.position.x, startField.position.y, endField.position.x, endField.position.y, takePiece, checkCheck));
 	}
 
+	public bool CheckDraw(bool whiteMove){
+		// possibly allow AIs to offer a draw? Probably not. 
+		// Stalemate: active player has no legal moves
+		if(!CheckIfLegalMovesAvailable(whiteMove)){
+			Debug.Log("Game is a draw: no legal moves available");
+			return true;
+		}
+		// Thr(positionold repetition
+		if(moveList.Count > 5){
+			if(CheckIfMovesAreTheSame(moveList[moveList.Count-1], moveList[moveList.Count-3], moveList[moveList.Count-5]) 
+				&& CheckIfMovesAreTheSame(moveList[moveList.Count-2], moveList[moveList.Count-4], moveList[moveList.Count-6])){
+					Debug.Log("Game is a draw: repeated same position three times");
+					return true;
+			}
+		}
+		// 50-move rule (no piece taken or pawn moves for 50 moves by each player)
+		if(moveList.Count > 100){
+			if(FiftyMoveCheck()){
+				Debug.Log("Game is a draw: no progress last 50 moves");
+				return true;
+			}
+		}
+		// Insufficient material: king with 1 bishop or 1 knight
+		if(whitePieces[0] == 0 && whitePieces[3] == 0 && whitePieces[4] == 0
+			&& blackPieces[0] == 0 && blackPieces[3] == 0 && blackPieces[4] == 0){
+				if(whitePieces[1] + whitePieces[2] <= 1 && blackPieces[1] + blackPieces[2] <= 1){
+					Debug.Log("Game is a draw: no player has enough material left to win");
+					return true;
+				}
+			}
+
+		return false;
+	}
+
+	private bool CheckIfMovesAreTheSame(Move m1, Move m2, Move m3){
+		if(m1.type == m2.type && m1.type == m3.type){
+			if(m1.startPosX == m2.startPosX  && m2.startPosX == m3.startPosX){
+				if(m1.startPosY == m2.startPosY && m2.startPosY == m3.startPosY){
+					if(m1.endPosX == m2.endPosX && m2.endPosX == m3.endPosX){
+						if(m1.endPosY == m2.endPosY && m2.endPosY == m3.endPosY){
+							if(m1.takePiece == m2.takePiece && m2.takePiece == m3.takePiece){
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private bool FiftyMoveCheck(){
+		for(int i = moveList.Count-100; i < moveList.Count; i++){
+			if(moveList[i].takePiece || moveList[i].type == 0){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	
+	private bool CheckIfLegalMovesAvailable(bool whiteMove){
+		// for each field on the board, check if there is a piece of the current player's color on that field. 
+		// Then, suggest possible moves for that piece, based on its type
+		for(int x = 0; x < 8; x++){
+			for(int y = 0; y < 8; y++){
+				Vector2Int startPos = new Vector2Int(x,y);
+				if(gameBoard[x,y].piece != null){
+					if(gameBoard[x,y].piece.colorIsWhite == whiteMove){
+						int pieceType = gameBoard[x,y].piece.type;
+						switch(pieceType){
+							// Check pawn moves
+							case 0:
+								List<Vector2Int> possibleMoves = new List<Vector2Int>();
+								possibleMoves.Add(new Vector2Int(x, y - 2));
+								possibleMoves.Add(new Vector2Int(x, y + 2));
+								possibleMoves.Add(new Vector2Int(x, y - 1));
+								possibleMoves.Add(new Vector2Int(x, y + 1));
+								possibleMoves.Add(new Vector2Int(x + 1, y + 1));
+								possibleMoves.Add(new Vector2Int(x + 1, y - 1));
+								possibleMoves.Add(new Vector2Int(x - 1, y - 1));
+								possibleMoves.Add(new Vector2Int(x - 1, y + 1));
+
+								foreach(Vector2Int position in possibleMoves){
+									if(CheckIfPieceOnBoard(position)){
+										if(CheckLegalMove(whiteMove, startPos, position)){
+											return true;
+										}
+									}
+								}
+								break;
+								// }
+
+
+
+								// if(x == 1 && whiteMove){
+								// 	// white pawn in starting position
+								// 	if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, y+2))){
+								// 		return true;
+								// 	}
+								// }
+								// else if(x == 6 && !whiteMove){
+								// 	if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, y-2))){
+								// 		return true;
+								// 	}
+								// }
+								// else if(x > 0){
+								// 	if(whiteMove){
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, y+1))){
+								// 			return true;
+								// 		}
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x+1,y+1))){
+								// 			return true;
+								// 		}
+								// 	}
+								// 	else{
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, y-1))){
+								// 			return true;
+								// 		}
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x+1,y-1))){
+								// 			return true;
+								// 		}
+								// 	}
+								// }
+								// else if(x < 7){
+								// 	if(whiteMove){
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x-1, y+1))){
+								// 			return true;
+								// 		}
+								// 	}
+								// 	else{
+								// 		if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x-1, y-1))){
+								// 			return true;
+								// 		}
+								// 	}
+								// }
+								break;
+							// Check knight moves
+							case 1:
+								List<Vector2Int> endFields = new List<Vector2Int>();
+								endFields.Add(new Vector2Int(x-2, y-1));
+								endFields.Add(new Vector2Int(x+2, y-1));
+								endFields.Add(new Vector2Int(x-2, y+1));
+								endFields.Add(new Vector2Int(x+2, y+1));
+								endFields.Add(new Vector2Int(x-1, y-2));
+								endFields.Add(new Vector2Int(x+1, y-2));
+								endFields.Add(new Vector2Int(x-1, y+2));
+								endFields.Add(new Vector2Int(x+1, y+2));
+								
+								foreach(Vector2Int position in endFields){
+									if(CheckIfPieceOnBoard(position)){
+										if(CheckLegalMove(whiteMove, startPos, position)){
+											return true;
+										}
+									}
+								}
+								break;
+							// Check bishop moves
+							case 2: 
+								for(int i = x + 1; i < 8; i++){
+									for(int j = y + 1; j < 8; j++){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x + 1; i < 8; i++){
+									for(int j = y - 1; j > -1; j--){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									for(int j = y + 1; j < 8; j++){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									for(int j = y - 1; j > -1; j--){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								break;
+							// Check rook moves
+							case 3: 
+								for(int i = x + 1; i < 8; i++){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i, y))){
+										return true;
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i, y))){
+										return true;
+									}
+								}
+								for(int i = y + 1; i < 8; i++){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, i))){
+										return true;
+									}
+								}
+								for(int i = y - 1; i > -1; i--){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, i))){
+										return true;
+									}
+								}
+								break;
+							// Check queen moves
+							case 4: 
+								for(int i = x + 1; i < 8; i++){
+									for(int j = y + 1; j < 8; j++){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x + 1; i < 8; i++){
+									for(int j = y - 1; j > -1; j--){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									for(int j = y + 1; j < 8; j++){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									for(int j = y - 1; j > -1; j--){
+										if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+											return true;
+										}
+									}
+								}
+								for(int i = x + 1; i < 8; i++){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i, y))){
+										return true;
+									}
+								}
+								for(int i = x - 1; i > -1; i--){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i, y))){
+										return true;
+									}
+								}
+								for(int i = y + 1; i < 8; i++){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, i))){
+										return true;
+									}
+								}
+								for(int i = y - 1; i > -1; i--){
+									if(CheckLegalMove(whiteMove, startPos, new Vector2Int(x, i))){
+										return true;
+									}
+								}
+								break;
+							// Check king moves
+							case 5: 
+								for(int i = x - 1 ; i < x + 2; i++){
+									for(int j = y - 1; j < y + 2; j++){
+										if(CheckIfPieceOnBoard(new Vector2Int(i,j))){
+											if(CheckLegalMove(whiteMove, startPos, new Vector2Int(i,j))){
+												return true;
+											}
+										}
+									}
+								}
+								break;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private bool CheckIfPieceOnBoard(Vector2Int position){
+		if(position.x >= 0 &&(position.x <= 7 &&(position.y >= 0 &&(position.y <= 7)))){
+			return true;
+		}
+		return false;
+	}
 }

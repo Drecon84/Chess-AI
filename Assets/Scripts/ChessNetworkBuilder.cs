@@ -251,6 +251,14 @@ public class ChessNetworkBuilder
                 raffle.Add(playerList[i]);
             }
         } 
+        if(raffle.Count < numToCull){
+            // all AIs are generally equal. We should just cull at random. 
+            raffle = new List<ChessAI>();
+            foreach(ChessAI ai in playerList){
+                raffle.Add(ai);
+            }
+            Debug.Log("All players equal, deleting at random!");
+        }
         for(int i = 0; i < numToCull; i++){
             int toCUll = Random.Range(0, raffle.Count);
             ChessAI aIToCull = raffle[toCUll];

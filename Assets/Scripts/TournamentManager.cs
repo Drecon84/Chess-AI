@@ -32,6 +32,8 @@ public class TournamentManager : MonoBehaviour
     bool whitePlayerLost;
     bool blackPlayerLost;
 
+    bool drawGame;
+
     int player1Index;
     int player2Index;
 
@@ -103,10 +105,14 @@ public class TournamentManager : MonoBehaviour
         }
     }
 
+    public void DrawGame(){
+        drawGame = true;
+    }
+
 
     void Update(){
         if(!chessManager.gameActive){
-            if(whitePlayerLost){
+            if(whitePlayerLost || blackPlayerLost || drawGame){
                 // Update points list, we want to give different points for different types of Victories!
                 // if round not over, start new game
                 if(currentGame < playerList.Count-1){
@@ -129,35 +135,6 @@ public class TournamentManager : MonoBehaviour
                         ScorePlayers();
                         waitforMakePlayers = true;
                         whitePlayerLost = false;
-                        FindBestGame();
-                        xmlSaving.Save(path, playerDNA);
-                        StartCoroutine(MakePlayers());
-                    }
-                    
-                }
-
-            }
-            if(blackPlayerLost){
-                // if round not over, start new game
-                if(currentGame < playerList.Count-1){
-                    playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
-                    playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
-                    ScorePlayers();
-                    currentGame++;
-                    NextGame();
-                }
-                else{
-                    if(currentMatch < numMatches){
-                        currentMatch++;
-                        currentGame = 0;
-                        playerShift = Random.Range(1, playerList.Count);
-                        NextGame();
-                    }
-                    else if(!waitforMakePlayers){
-                        playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
-                        playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
-                        ScorePlayers();
-                        waitforMakePlayers = true;
                         blackPlayerLost = false;
                         FindBestGame();
                         xmlSaving.Save(path, playerDNA);
@@ -165,6 +142,7 @@ public class TournamentManager : MonoBehaviour
                     }
                 }
             }
+            
         }
         if(chessManager.gameActive && !waitforMakePlayers && !chessManager.movingPiece && !humanGame){
             iOManager.PerformActions();
@@ -217,7 +195,12 @@ public class TournamentManager : MonoBehaviour
     }
 
     public void ScorePlayers(){
-        // Currently a draw awards 0 points... should give 1 point, when it's possible to score a draw...
+        // Drawing a game gives 1 point to each player
+        if(drawGame){
+            pointsList[player1Index]++;
+            pointsList[player2Index]++;
+        }
+        // Checkmate gives 3 points to the winner, 0 to the loser
         if(chessManager.board.CheckIfCheckMate(true)){
             if(whitePlayerLost){
                 pointsList[player2Index] += 3;
@@ -226,16 +209,18 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player1Index] += 3;
             }   
         }
+        // Trying to make an illegal move gives -2 points to the offending player, the other player gets 3. 
         if(!chessManager.tryMove){
             if(whitePlayerLost){
-                pointsList[player2Index] -= 2;
-                pointsList[player1Index] += 3;
+                pointsList[player2Index] += 3;
+                pointsList[player1Index] -= 2;
             }
             else{
-                pointsList[player1Index] -= 2;
-                pointsList[player2Index] += 3;
+                pointsList[player1Index] += 3;
+                pointsList[player2Index] -= 2;
             }
         }
+        // Running out of time loses 5 points (winner gets 3 points)
         if(chessManager.timerP1 <= 0){
             pointsList[player1Index] -= 5;
             pointsList[player2Index] += 3;
@@ -244,14 +229,6 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player2Index] -= 5;
                 pointsList[player1Index] += 3;
         }
-        // if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 1){
-
-        //     pointsList[player1Index] += playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList[playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count-1].moveNumber * 5;
-        //     pointsList[player2Index] += playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList[playerList[player2Index].gameList[playerList[player2Index].gameList.Count-1].moveList.Count-1].moveNumber * 5;
-        // }
-        // else if(playerList[player1Index].gameList[playerList[player1Index].gameList.Count-1].moveList.Count > 0){
-        //     pointsList[player1Index] +=  5; 
-        // }
     }
 
     public void FindBestGame(){

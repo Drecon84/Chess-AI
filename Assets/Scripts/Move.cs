@@ -43,6 +43,9 @@ public class Move
     [XmlElement("Castle")]
     public bool castle;
 
+    [XmlElement("Draw")]
+    public bool draw;
+
     public Move(){
         
     }

@@ -38,7 +38,7 @@ public class ChessAI
     public void GetInputs(List<int> numInputs){
         intInputs = numInputs;
         for(int i = 0; i < numInputs.Count; i++){
-            inputNeurons[i].currentActivation += numInputs[i];
+            inputNeurons[i].currentActivation = numInputs[i];
         }
     }
 
