@@ -340,7 +340,7 @@ public class ChessNetworkBuilder
     private ChessAIDNA Mutate(ChessAIDNA toMutate){
         for(int i = 0; i < maxMutations; i++){
             // Possible mutations: 
-            int mutationType = Random.Range(0, 14);
+            int mutationType = Random.Range(0, 15);
             // Switch two DNA strands
             if(mutationType == 0){
                 int toSwitch1 = Random.Range(0, toMutate.DNA.Count);
@@ -350,7 +350,7 @@ public class ChessNetworkBuilder
                 toMutate.DNA[toSwitch2] = tempDNA;
             }
             // Add a neuron in the DNA
-            if(mutationType == 1){
+            if(mutationType == 1 || mutationType == 14){
                 int randomDNA = Random.Range(0, toMutate.DNA.Count);
                 int insertSpot = Random.Range(1, toMutate.DNA[randomDNA].chessGenes.Count);
                 highestTransmitterNumber = toMutate.highestTransmitterNumber;

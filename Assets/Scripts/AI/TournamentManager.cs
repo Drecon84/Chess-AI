@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
 using System.Xml.Serialization;
+using TMPro;
 
 public class TournamentManager : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class TournamentManager : MonoBehaviour
     public List<int> pointsList;
 
     int maxPlayerNumber = 200;
+
+    public TMP_Text tournamentStatus;
 
     //int gamesInRound = 1000;
     int numMatches = 3;
@@ -48,6 +51,7 @@ public class TournamentManager : MonoBehaviour
     public bool pauseNextGen;
 
     public void StartTournament(){
+        tournamentStatus.SetText("Starting Tournament...");
         path = Application.dataPath + "/ChessPlayers.xml";
         xmlSaving = new XMLSaving();
         playerDNA = xmlSaving.Load(path);
@@ -64,7 +68,7 @@ public class TournamentManager : MonoBehaviour
 
     public void NextRound(){
         Debug.Log("Starting next round...");
-        pauseNextGen = false;
+        //pauseNextGen = false;
         currentGame = 0;
         pointsList = new List<int>();
         for(int i = 0; i < maxPlayerNumber; i++){
@@ -72,6 +76,7 @@ public class TournamentManager : MonoBehaviour
         }
         currentMatch = 1;
         playerShift = Random.Range(1, playerList.Count);
+        tournamentStatus.SetText("Starting round 1 of " + playerList.Count);
         NextGame();
     }
 
@@ -89,6 +94,7 @@ public class TournamentManager : MonoBehaviour
         iOManager = new AIIOManager(chessManager, playerList[player1Index], playerList[player2Index]);
         chessManager.SetPlayerNames(playerList[player1Index].aIDNA.aiName, playerList[player2Index].aIDNA.aiName);
         CreateGame(playerList[player1Index], playerList[player2Index]);
+        tournamentStatus.SetText("Starting round " + currentGame + " of " + playerList.Count + " Match: " + currentMatch);
         chessManager.StartNewGame(2);
     }
 
@@ -229,6 +235,51 @@ public class TournamentManager : MonoBehaviour
                 pointsList[player2Index] -= 5;
                 pointsList[player1Index] += 3;
         }
+    }
+
+    // Currently only checks if the player has made the most popular move, probably need a more interesting way to do this later. 
+    public void OriginalityBoost(){
+        // Make a list of all made moves and the frequency (can't find a clean way to do this at runtime)
+        Dictionary<Move, int> moveFrequency = new Dictionary<Move, int>{};
+        foreach(ChessAI player in playerList){
+            foreach(ChessGame g in player.gameList){
+                foreach(Move m in g.moveList){
+                    if(moveFrequency.ContainsKey(m)){
+                        moveFrequency[m]++;
+                    }
+                    else{
+                        moveFrequency.Add(m, 1);
+                    }
+                }
+            }
+        }
+
+        int highest = 0;
+
+        // Get the highest value in the list
+        //int highest = 0;
+        foreach (KeyValuePair<Move, int> kP in moveFrequency){
+            if(kP.Value > highest){
+                highest = kP.Value;
+            }
+        }
+
+        for (int player = 0; player < playerList.Count; player++){
+            foreach(ChessGame game in playerList[player].gameList){
+                bool mostCommonMoveMade = false;
+                if(game.moveList.Count > 0){
+                    foreach(Move m in game.moveList){
+                        if(moveFrequency[m] == highest){
+                            mostCommonMoveMade = true;
+                        }
+                    }
+                    if(!mostCommonMoveMade){
+                        pointsList[player]++;
+                    }
+                    
+                }
+            }
+        }        
     }
 
     public void FindBestGame(){

@@ -39,9 +39,11 @@ public class ChessManager : MonoBehaviour {
 
 	public bool movingPiece = false;
 
+	public List<Move> moveList;
 
 	void Start () {
 		//StartNewGame(60*5);
+		moveList = new List<Move>();
 	}
 
 	public void StartHumanGame(){

@@ -100,7 +100,7 @@ public class Board {
 		int pieceType = gameBoard[startPos.x, startPos.y].piece.type;
 		Field startField = gameBoard[startPos.x, startPos.y];
 		Field endField = gameBoard[endPos.x, endPos.y];
-		Piece tempPiece;
+		//Piece tempPiece;
 
 		// Pawn move
 		switch (pieceType){
@@ -1553,7 +1553,7 @@ public class Board {
 								// 		}
 								// 	}
 								// }
-								break;
+								//break;
 							// Check knight moves
 							case 1:
 								List<Vector2Int> endFields = new List<Vector2Int>();
