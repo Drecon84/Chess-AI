@@ -17,7 +17,7 @@ public class AIIOManager
 
     //public bool moveSucessful; 
 
-    bool movingPiece = false;
+    //bool movingPiece = false;
 
     public AIIOManager(ChessManager cm, ChessAI p1, ChessAI p2){
         chessManager = cm;

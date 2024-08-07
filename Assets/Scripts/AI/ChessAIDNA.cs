@@ -8,6 +8,9 @@ public class ChessAIDNA
     [XmlAttribute("Name")]
     public string aiName;
 
+    [XmlElement("Generation")]
+    public int genNum;
+
     [XmlElement("HighestTransmitterNumber")]
     public int highestTransmitterNumber;
 

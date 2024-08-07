@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ChessNetworkBuilder
 {
+    public int generationNumber;
 
     public int inputNumber;
 
@@ -29,6 +30,7 @@ public class ChessNetworkBuilder
     // Mutation we'll have to figure out later
 
     public ChessNetworkBuilder(int inNum, int outNum, int maxIn, int maxOut, int maxWaitTime, int stop){
+        generationNumber = 0;
         inputNumber = inNum;
         outputNumber = outNum;
         maxInput = maxIn;
@@ -113,6 +115,7 @@ public class ChessNetworkBuilder
         // If there is no neuron available with the correct transmitter, make a new neuron with the settings from the gene
 
         ChessAI aI = new ChessAI(gene);
+        aI.aIDNA.genNum = generationNumber;
         aI.inputNeurons = new List<ChessNeuron>();
 
         List<ChessNeuron> availableOutNeurons = new List<ChessNeuron>();
@@ -207,6 +210,7 @@ public class ChessNetworkBuilder
     }
 
     public List<ChessAI> NextGeneration(List<ChessAI> oldGen, List<int> pointsList, int maxPlayerNumber){
+        generationNumber++;
         return MakeChildren(CullAIs(oldGen, pointsList), pointsList, maxPlayerNumber);
     }
 

@@ -30,6 +30,7 @@ public class XMLSaving
             return list;
         }
         catch (FileNotFoundException ex){
+            Debug.Log("Could not find file. Exception code: " + ex);
             return null;
         }
         

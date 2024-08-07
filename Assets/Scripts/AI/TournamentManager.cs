@@ -21,6 +21,8 @@ public class TournamentManager : MonoBehaviour
 
     int maxPlayerNumber = 200;
 
+    public TMP_Text genNum;
+
     public TMP_Text tournamentStatus;
 
     //int gamesInRound = 1000;
@@ -52,6 +54,7 @@ public class TournamentManager : MonoBehaviour
 
     public void StartTournament(){
         tournamentStatus.SetText("Starting Tournament...");
+        
         path = Application.dataPath + "/ChessPlayers.xml";
         xmlSaving = new XMLSaving();
         playerDNA = xmlSaving.Load(path);
@@ -64,6 +67,8 @@ public class TournamentManager : MonoBehaviour
             CreatePlayersFromDNA();
             Debug.Log("Loaded players");
         }  
+        networkBuilder.generationNumber = playerList[0].aIDNA.genNum;
+        genNum.SetText("Generation: " + networkBuilder.generationNumber);
     }
 
     public void NextRound(){
@@ -139,11 +144,13 @@ public class TournamentManager : MonoBehaviour
                         playerList[player1Index].gameList.Add(new ChessGame(chessManager.board.moveList, true));
                         playerList[player2Index].gameList.Add(new ChessGame(chessManager.board.moveList, false));
                         ScorePlayers();
+                        OriginalityBoost();
                         waitforMakePlayers = true;
                         whitePlayerLost = false;
                         blackPlayerLost = false;
                         FindBestGame();
                         xmlSaving.Save(path, playerDNA);
+                        genNum.SetText("Generation: " + networkBuilder.generationNumber);
                         StartCoroutine(MakePlayers());
                     }
                 }
@@ -274,7 +281,7 @@ public class TournamentManager : MonoBehaviour
                         }
                     }
                     if(!mostCommonMoveMade){
-                        pointsList[player]++;
+                        pointsList[player] += 3;
                     }
                     
                 }
